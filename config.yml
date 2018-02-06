@@ -1,0 +1,39 @@
+# 10 debug, 20 info, 30 warning, 40 error, 50 critical
+log_level: 20
+video: "video.mp4"
+
+detection:
+  # object detection
+  batch_size: 10
+  frozen_graph: "model/frozen_inference_graph.pb"
+  threshold: 0.9
+  min_box_matches: 25
+
+  # bilateral filter
+  bilateral_filter: True
+  diameter: 11
+  sigma_color: 75
+  sigma_space: 75
+
+  # gaussian blur
+  gaussian_blur: True
+  kernel_size: 7
+  standard_deviation: 1
+
+  # adaptive thresholding
+  block_size: 3
+  constant: 4
+
+  # character width
+  char_min_coeff: 0.7
+  char_max_coeff: 1.0
+  char_min_dist: 0
+
+  # character grouping
+  grp_min_coeff: 0.75
+  grp_min_dist_coeff: 0.25
+
+recognition:
+  model: "model/model.yml"
+  weights: "model/model-0.96.h5"
+  dictionary: "model/dictionary.txt"

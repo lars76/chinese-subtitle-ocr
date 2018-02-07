@@ -1,5 +1,5 @@
 # chinese-subtitle-ocr
-This project shows how to implement an optical character recognition via SSD and CNN. The focus lies here mainly on the special case of Chinese subtitles. Due to their homogeneous form, a near perfect accuracy of 100% should be possible (see for example [1]). The method used in this project is susceptible to lightning conditions and the resolution of the video, but by fine-tuning the parameters for most videos a good accuracy can be achieved.
+This project shows how to implement an optical character recognition via SSD and CNN. The focus lies here mainly on the special case of Chinese subtitles. Due to their homogeneous form, a near perfect accuracy of 100% should be possible (see for example [1]). The method used in this project is susceptible to changing lightning conditions and the resolution of the video, but by fine-tuning the parameters for most videos a good accuracy can be achieved.
 
 The recognition of the subtitles is done in three steps:
 
@@ -41,7 +41,17 @@ Due to not having enough computing power, only 804 Chinese characters (803 + 1 s
 ![Final result](https://i.imgur.com/i8uoIjC.jpg)
 
 ## Discussion
-The general method of this project seems to be working fairly well, but a lot of small changes have to be made to achieve good results. In the end the best choice is just to perform OCR by using one neural network that has an architecture similar to SSD/YOLO.
+The general method of this project seems to be working fairly well, but a lot of small changes have to be made to achieve better results. To see this, let's analyze some of the errors that were made by the program.
+
+![Errors](https://i.imgur.com/skKb6F5.png)
+
+Here "拨", "角色" wasn't recognized because it wasn't among our 804 Chinese characters. "三" is in the dictionary but our training data didn't have enough  variations (more shifts, size changes etc. are needed).
+
+![Errors 2](https://i.imgur.com/Xh79l68.png)
+
+Additionally, there are some errors introduced by the region detection. The black line at the end confuses the program. This can be solved by filtering more, using an overlap when the columns are summed or by setting a threshold for the black pixels.
+
+In the end it might be better to skip the filtering part and use directly another neural network that performs the detection and the optical character recognition.
 
 ## References
 [1] Y. Xu, S. Shan, Z. Qiu, Z. Jia, Z. Shen, Y. Wang, M. Shi, and E. I.-C. Chang, “End-to-end subtitle detection and recognition for videos in East Asian languages via CNN ensemble,” Signal Processing: Image Communication, vol. 60, pp. 131–143, Feb. 2018.

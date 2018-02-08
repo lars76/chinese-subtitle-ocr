@@ -69,6 +69,8 @@ class Detection:
         self.block_size = cfg["block_size"]
         self.constant = cfg["constant"]
 
+        self.threshold_pixel = cfg["threshold_pixel"]
+
         self.char_min_coeff = cfg["char_min_coeff"]
         self.char_max_coeff = cfg["char_max_coeff"]
         self.char_min_dist = cfg["char_min_dist"]
@@ -87,7 +89,8 @@ class Detection:
 
     def __calculate_char_width(self, image):
         regions = self.__calculate_regions(image, image.shape[0] * self.char_min_coeff,
-                                           image.shape[0] * self.char_max_coeff, self.char_min_dist)
+                                           image.shape[0] * self.char_max_coeff, self.char_min_dist,
+                                           self.threshold_pixel)
         char_width = 0
         if regions:
             char_width = int(np.max([region[2] for region in regions]))
@@ -101,12 +104,12 @@ class Detection:
 
     def detect_char_regions(self, image):
         regions = self.__calculate_regions(image, self.char_width * self.grp_min_coeff, image.shape[1],
-                                           self.char_width * self.grp_min_dist_coeff)
+                                           self.char_width * self.grp_min_dist_coeff, self.threshold_pixel)
         for start, stop, dist in regions:
             for window in range(start, stop, self.char_width + self.char_dist):
                 yield (image[:, window: self.char_width + window], window, self.char_width + window)
 
-    def __calculate_regions(self, image, min_width, max_width, min_dist, backwards=10):
+    def __calculate_regions(self, image, min_width, max_width, min_dist, backwards=10, threshold_pixel = 3):
         grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = None
         if self.bilateral_filter:
@@ -125,10 +128,10 @@ class Detection:
             col = threshold_img[:, index]
             zeros = np.count_nonzero(col == 0)
 
-            if (zeros > 0 and width == 0) or width >= max_width:
+            if (zeros > threshold_pixel and width == 0) or width >= max_width:
                 start = index
                 width = 1
-            elif width > 0 and zeros == 0:
+            elif width > 0 and zeros <= threshold_pixel:
                 if len(result) > 0 and np.abs(result[-1][1] - start) <= min_dist:
                     result[-1][1] = index
                 elif width >= min_width:

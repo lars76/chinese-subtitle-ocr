@@ -24,6 +24,9 @@ detection:
   block_size: 3
   constant: 4
 
+  # threshold for the black pixels
+  threshold_pixel: 3
+
   # character width
   char_min_coeff: 0.7
   char_max_coeff: 1.0
